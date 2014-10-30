@@ -28,16 +28,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
-import org.cybergarage.util.CommonLog;
 import org.cybergarage.util.Debug;
-import org.cybergarage.util.LogFactory;
-
-
-import android.util.Log;
 
 public class HTTPUSocket
 {
-	private static final CommonLog log = LogFactory.createNewLog("dlna_framework");
 	////////////////////////////////////////////////
 	//	Member
 	////////////////////////////////////////////////
@@ -128,7 +122,6 @@ public class HTTPUSocket
 			// Changed to bind the specified address and port for Android v1.6 (2009/10/07)
 			InetSocketAddress bindInetAddr = new InetSocketAddress(InetAddress.getByName(bindAddr), bindPort);
 			ssdpUniSock = new DatagramSocket(bindInetAddr);
-
 		}
 		catch (Exception e) {
 			Debug.warning(e);
@@ -204,15 +197,11 @@ public class HTTPUSocket
 			InetAddress inetAddr = InetAddress.getByName(addr);
 			DatagramPacket dgmPacket = new DatagramPacket(msg.getBytes(), msg.length(), inetAddr, port);
 			ssdpUniSock.send(dgmPacket);
-			log.e("send to " + inetAddr.toString() + ", port = " + port);
 		}
 		catch (Exception e) {
 			Debug.warning("addr = " +ssdpUniSock.getLocalAddress().getHostName());
 			Debug.warning("port = " + ssdpUniSock.getLocalPort());
 			Debug.warning(e);
-			log.e("addr = " +ssdpUniSock.getLocalAddress().getHostName());
-			log.e("port = " + ssdpUniSock.getLocalPort());
-			log.e(e);
 			return false;
 		}
 		return true;

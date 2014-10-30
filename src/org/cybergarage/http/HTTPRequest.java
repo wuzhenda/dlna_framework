@@ -81,8 +81,7 @@ public class HTTPRequest extends HTTPPacket
 	
 	public HTTPRequest()
 	{
-		//setVersion(HTTP.VERSION_10);
-		setVersion(HTTP.VERSION_11);
+		setVersion(HTTP.VERSION_10);
 	}
 
 	public HTTPRequest(InputStream in)

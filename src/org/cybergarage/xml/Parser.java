@@ -70,8 +70,6 @@ public abstract class Parser
 
 			Node rootElem = parse(urlIn);
 			
-		//	rootElem.print();
-			
 			urlIn.close();
 			urlCon.disconnect();
 

@@ -90,20 +90,15 @@ import org.cybergarage.upnp.ssdp.SSDPNotifyRequest;
 import org.cybergarage.upnp.ssdp.SSDPNotifySocket;
 import org.cybergarage.upnp.ssdp.SSDPPacket;
 import org.cybergarage.upnp.xml.ServiceData;
-import org.cybergarage.util.CommonLog;
 import org.cybergarage.util.Debug;
-import org.cybergarage.util.LogFactory;
 import org.cybergarage.util.Mutex;
 import org.cybergarage.util.StringUtil;
 import org.cybergarage.xml.Node;
 import org.cybergarage.xml.Parser;
 import org.cybergarage.xml.ParserException;
 
-
-
 public class Service
 {
-	private static final CommonLog log = LogFactory.createNewLog("dlna_framework");
 	////////////////////////////////////////////////
 	//	Constants
 	////////////////////////////////////////////////
@@ -126,7 +121,7 @@ public class Service
 	////////////////////////////////////////////////
 	public static final String SCPD_ROOTNODE="scpd";
 	public static final String SCPD_ROOTNODE_NS="urn:schemas-upnp-org:service-1-0"; 
-	
+
 	public static final String SPEC_VERSION="specVersion";
 	public static final String MAJOR="major";
 	public static final String MAJOR_VALUE="1";
@@ -147,8 +142,8 @@ public class Service
 		sp.addNode(m);
 		
 		//Node scpd = new Node(SCPD_ROOTNODE,SCPD_ROOTNODE_NS); wrong!
-		Node scpd = new Node(SCPD_ROOTNODE); 					// better (twa)
-		scpd.addAttribute("xmlns",SCPD_ROOTNODE_NS); 			// better (twa)
+		Node scpd = new Node(SCPD_ROOTNODE);
+		scpd.addAttribute("xmlns",SCPD_ROOTNODE_NS);
 		scpd.addNode(sp);
 		getServiceData().setSCPDNode(scpd);
 	}
@@ -246,6 +241,31 @@ public class Service
 		return getServiceNode().getNodeValue(SERVICE_ID);
 	}
 
+	////////////////////////////////////////////////
+	//	configID
+	////////////////////////////////////////////////
+
+	private final static String CONFIG_ID = "configId";
+	
+	public void updateConfigId()
+	{
+		Node scpdNode = getSCPDNode();
+		if (scpdNode == null)
+			return;
+		
+		String scpdXml = scpdNode.toString();
+		int configId = UPnP.caluculateConfigId(scpdXml);
+		scpdNode.setAttribute(CONFIG_ID, configId);
+	}
+
+	public int getConfigId()
+	{
+		Node scpdNode = getSCPDNode();
+		if (scpdNode == null)
+			return 0;
+		return scpdNode.getAttributeIntegerValue(CONFIG_ID);
+	}
+	
 	////////////////////////////////////////////////
 	//	isURL
 	////////////////////////////////////////////////
@@ -345,6 +365,7 @@ public class Service
 		catch (ParserException e) {
 			throw new InvalidDescriptionException(e);
 		}
+		
 		return true;
 	}
 
@@ -354,8 +375,10 @@ public class Service
 		Node scpdNode = parser.parse(file);
 		if (scpdNode == null)
 			return false;
+		
 		ServiceData data = getServiceData();
 		data.setSCPDNode(scpdNode);
+
 		return true;
 	}
 
@@ -368,20 +391,22 @@ public class Service
 		Node scpdNode = parser.parse(input);
 		if (scpdNode == null)
 			return false;
+		
 		ServiceData data = getServiceData();
 		data.setSCPDNode(scpdNode);
+		
 		return true;
 	}
 	
 	
     public void setDescriptionURL(String value)
     {
-            getServiceData().setDescriptionURL(value);
+    	getServiceData().setDescriptionURL(value);
     }
 
     public String getDescriptionURL()
     {
-            return getServiceData().getDescriptionURL();
+    	return getServiceData().getDescriptionURL();
     }
 	
 	
@@ -396,8 +421,7 @@ public class Service
 		Parser parser = UPnP.getXMLParser();
 		return parser.parse(scpdFile);
 	}
-	
-	
+
 	private Node getSCPDNode()
 	{
 		ServiceData data = getServiceData();
@@ -405,15 +429,35 @@ public class Service
 		if (scpdNode != null)
 			return scpdNode;
 		
-		Device rootDev = getDevice();
+		// Thanks for Jaap (Sep 18, 2010)
+		Device rootDev = getRootDevice();
 		if (rootDev == null)
 			return null;
 		
 		String scpdURLStr = getSCPDURL();
-//		log.e("scpdURLStr = " + scpdURLStr);
+
+		// Thanks for Robin V. (Sep 18, 2010)
+		String rootDevPath = rootDev.getDescriptionFilePath();
+		if(rootDevPath!=null) {
+			File f;
+			f = new File(rootDevPath.concat(scpdURLStr));
+		
+			if(f.exists()) {
+				try {
+					scpdNode = getSCPDNode(f);
+				} catch (ParserException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(scpdNode!=null) {
+					data.setSCPDNode(scpdNode);
+					return scpdNode;
+				}
+			}
+		}
+
 		try {
 			URL scpdUrl = new URL(rootDev.getAbsoluteURL(scpdURLStr));
-//			log.e("scpdUrl = " + scpdUrl.toString());
 			scpdNode = getSCPDNode(scpdUrl);		
 			if (scpdNode != null) {
 				data.setSCPDNode(scpdNode);
@@ -423,9 +467,9 @@ public class Service
 		catch (Exception e) {}
 		
 		String newScpdURLStr = rootDev.getDescriptionFilePath() + HTTP.toRelativeURL(scpdURLStr);
-//		log.e("newScpdURLStr = " + newScpdURLStr);
 		try {
 			scpdNode = getSCPDNode(new File(newScpdURLStr));
+			return scpdNode;
 		}
 		catch (Exception e) {
 			Debug.warning(e);
@@ -433,62 +477,6 @@ public class Service
 		
 		return null;
 	}
-
-//	private Node getSCPDNode()
-//	{
-//		ServiceData data = getServiceData();
-//		Node scpdNode = data.getSCPDNode();
-//		if (scpdNode != null)
-//			return scpdNode;
-//		
-//		// Thanks for Jaap (Sep 18, 2010)
-//		Device rootDev = getRootDevice();
-//		if (rootDev == null)
-//			return null;
-//		
-//		String scpdURLStr = getSCPDURL();
-//
-//		// Thanks for Robin V. (Sep 18, 2010)
-//		String rootDevPath = rootDev.getDescriptionFilePath();
-//		if(rootDevPath!=null) {
-//			File f;
-//			f = new File(rootDevPath.concat(scpdURLStr));
-//		
-//			if(f.exists()) {
-//				try {
-//					scpdNode = getSCPDNode(f);
-//				} catch (ParserException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				if(scpdNode!=null) {
-//					data.setSCPDNode(scpdNode);
-//					return scpdNode;
-//				}
-//			}
-//		}
-//
-//		try {
-//			URL scpdUrl = new URL(rootDev.getAbsoluteURL(scpdURLStr));
-//			scpdNode = getSCPDNode(scpdUrl);		
-//			if (scpdNode != null) {
-//				data.setSCPDNode(scpdNode);
-//				return scpdNode;
-//			}
-//		}
-//		catch (Exception e) {}
-//		
-//		String newScpdURLStr = rootDev.getDescriptionFilePath() + HTTP.toRelativeURL(scpdURLStr);
-//		try {
-//			scpdNode = getSCPDNode(new File(newScpdURLStr));
-//			return scpdNode;
-//		}
-//		catch (Exception e) {
-//			Debug.warning(e);
-//		}
-//		
-//		return null;
-//	}
 
 	public byte[] getSCPDData()
 	{

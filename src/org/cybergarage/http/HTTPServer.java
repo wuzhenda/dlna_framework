@@ -41,7 +41,6 @@ import org.cybergarage.util.ListenerList;
  */
 public class HTTPServer implements Runnable
 {
-
 	////////////////////////////////////////////////
 	//	Constants
 	////////////////////////////////////////////////
@@ -175,8 +174,6 @@ public class HTTPServer implements Runnable
 		if (serverSock == null)
 			return null;
 		try {
-			
-			
 			Socket sock = serverSock.accept();
 			sock.setSoTimeout(getTimeout());
 			return sock;
@@ -236,10 +233,7 @@ public class HTTPServer implements Runnable
 				Debug.message("accept ...");
 				sock = accept();
 				if (sock != null)
-				{
 					Debug.message("sock = " + sock.getRemoteSocketAddress());
-				}
-					
 			}
 			catch (Exception e){
 				Debug.warning(e);

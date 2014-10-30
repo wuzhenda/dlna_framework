@@ -37,8 +37,6 @@ import org.cybergarage.util.*;
 import org.cybergarage.http.*;
 import org.cybergarage.upnp.*;
 
-import android.util.Log;
-
 /**
  * 
  * This class identifies a SSDP socket only for <b>notifing packet</b>.<br>
@@ -51,7 +49,7 @@ import android.util.Log;
 public class SSDPNotifySocket extends HTTPMUSocket implements Runnable
 {
 	private boolean useIPv6Address;
-	private static final CommonLog log = LogFactory.createNewLog("dlna_framework");
+	
 	////////////////////////////////////////////////
 	//	Constructor
 	////////////////////////////////////////////////
@@ -132,15 +130,13 @@ public class SSDPNotifySocket extends HTTPMUSocket implements Runnable
 			InetAddress maddr = getMulticastInetAddress();
 			InetAddress pmaddr = packet.getHostInetAddress();
 			if (maddr.equals(pmaddr) == false) {
-			//	Debug.warning("Invalidate Multicast Recieved from IP " + maddr + " on " + pmaddr);
+				Debug.warning("Invalidate Multicast Recieved from IP " + maddr + " on " + pmaddr);
 				continue;
 			}
 			//TODO Must be performed on a different Thread in order to prevent UDP packet losses.
 			if (ctrlPoint != null)
 				ctrlPoint.notifyReceived(packet); 
 		}
-		
-//		log.e("SSDPNotifySocket run over!!!");
 	}
 	
 	public void start(){

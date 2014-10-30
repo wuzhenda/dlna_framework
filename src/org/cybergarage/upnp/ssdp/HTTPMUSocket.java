@@ -43,13 +43,11 @@ import org.cybergarage.http.HTTPRequest;
 import org.cybergarage.upnp.UPnP;
 import org.cybergarage.util.Debug;
 
-
 // Dummy Class for Android m3-rc37a
 // import org.cybergarage.android.MulticastSocket;
 
 public class HTTPMUSocket
 {
-
 	////////////////////////////////////////////////
 	//	Member
 	////////////////////////////////////////////////
@@ -149,10 +147,8 @@ public class HTTPMUSocket
 			ssdpMultiSock = new MulticastSocket(null);
 			ssdpMultiSock.setReuseAddress(true);
 			InetSocketAddress bindSockAddr = new InetSocketAddress(port);
-			ssdpMultiSock.bind(bindSockAddr);		
-		
+			ssdpMultiSock.bind(bindSockAddr);
 			ssdpMultiGroup = new InetSocketAddress(InetAddress.getByName(addr), port);
-
 			ssdpMultiIf = NetworkInterface.getByInetAddress(bindAddr);
 			ssdpMultiSock.joinGroup(ssdpMultiGroup, ssdpMultiIf);
 		}

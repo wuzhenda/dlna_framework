@@ -23,18 +23,13 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import org.cybergarage.upnp.*;
-import org.cybergarage.util.CommonLog;
-import org.cybergarage.util.LogFactory;
-
-import android.util.Log;
 
 public class SSDPSearchResponseSocket extends HTTPUSocket implements Runnable
 {
 	////////////////////////////////////////////////
 	//	Constructor
 	////////////////////////////////////////////////
-	private static final CommonLog log = LogFactory.createNewLog("dlna_framework");
-	
+
 	public SSDPSearchResponseSocket()
 	{
 		setControlPoint(null);
@@ -82,9 +77,6 @@ public class SSDPSearchResponseSocket extends HTTPUSocket implements Runnable
 			if (ctrlPoint != null)
 				ctrlPoint.searchResponseReceived(packet); 
 		}
-		
-//		log.e("SSDPSearchResponseSocket runOver...");
-
 	}
 	
 	public void start()	{

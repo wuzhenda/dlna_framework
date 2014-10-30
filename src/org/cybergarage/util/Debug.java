@@ -20,7 +20,7 @@ import java.io.PrintStream;
 public final class Debug{		
 	
 	public static Debug debug = new Debug();
-	private static final CommonLog log = LogFactory.createNewLog("dlna_framework");
+	
 	private PrintStream out = System.out;
 	
 	
@@ -52,9 +52,8 @@ public final class Debug{
 		return enabled;
 	}
 	public static final void message(String s) {
-		if (enabled == true){
+		if (enabled == true)
 			Debug.debug.getOut().println("CyberGarage message : " + s);
-		}		
 	}
 	public static final void message(String m1, String m2) {
 		if (enabled == true)
@@ -63,8 +62,7 @@ public final class Debug{
 			Debug.debug.getOut().println(m2);
 	}
 	public static final void warning(String s) {
-		//Debug.debug.getOut().println("CyberGarage warning : " + s);
-		log.e("CyberGarage warning : " + s);
+		Debug.debug.getOut().println("CyberGarage warning : " + s);
 	}
 	public static final void warning(String m, Exception e) {
 		if(e.getMessage()==null){
@@ -78,6 +76,6 @@ public final class Debug{
 	}
 	public static final void warning(Exception e) {
 		warning(e.getMessage());
-	//	e.printStackTrace(Debug.debug.getOut());
+		e.printStackTrace(Debug.debug.getOut());
 	}
 }
